@@ -1,0 +1,73 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(claude mcp add voice-hooks npx mcp-voice-hooks@latest)",
+      "Bash(claude)",
+      "Bash(mkdir:*)",
+      "Bash(npm start)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(git rm:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(npm run build:*)",
+      "Bash(node:*)",
+      "Bash(npm run lint)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST \"http://localhost:${MCP_VOICE_HOOKS_PORT:-5111}/api/hooks/stop\" || echo '{\"decision\": \"approve\", \"reason\": \"voice-hooks unavailable\"}'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^(?!mcp__voice-hooks__).*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST \"http://localhost:${MCP_VOICE_HOOKS_PORT:-5111}/api/hooks/pre-tool\" || echo '{\"decision\": \"approve\", \"reason\": \"voice-hooks unavailable\"}'"
+          }
+        ]
+      },
+      {
+        "matcher": "^mcp__voice-hooks__speak$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST \"http://localhost:${MCP_VOICE_HOOKS_PORT:-5111}/api/hooks/pre-speak\" || echo '{\"decision\": \"approve\", \"reason\": \"voice-hooks unavailable\"}'"
+          }
+        ]
+      },
+      {
+        "matcher": "^mcp__voice-hooks__wait_for_utterance$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST \"http://localhost:${MCP_VOICE_HOOKS_PORT:-5111}/api/hooks/pre-wait\" || echo '{\"decision\": \"approve\", \"reason\": \"voice-hooks unavailable\"}'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(?!mcp__voice-hooks__).*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST \"http://localhost:${MCP_VOICE_HOOKS_PORT:-5111}/api/hooks/post-tool\" || echo '{}'"
+          }
+        ]
+      }
+    ]
+  }
+}

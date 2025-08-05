@@ -1,0 +1,71 @@
+# Environment files - NEVER commit credentials
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend build outputs
+inkflow-crm/dist/
+inkflow-crm/build/
+inkflow-crm/.vite/
+
+# Backend logs
+backend/logs/
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Screenshots and images (optional - keep if needed for documentation)
+# *.png
+# *.jpg
+# *.jpeg
+
+# Package lock files (keep npm, exclude yarn)
+yarn.lock
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# MongoDB local data
+data/
+dump/
+
+# Backup files
+*.bak
+*.backup
+
+# Security - Firebase private keys, MongoDB connection strings, etc.
+*private-key*
+*credentials*
+*secrets*
