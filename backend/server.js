@@ -51,13 +51,61 @@ app.get('/api/clients', async (req, res) => {
       .sort({ createdAt: -1 })
       .toArray();
     
-    // Transform MongoDB _id to match frontend expectations
-    const transformedClients = clients.map(client => ({
-      ...client,
-      id: client._id.toString(),
-      createdAt: new Date(client.createdAt),
-      updatedAt: new Date(client.updatedAt)
-    }));
+    // Helper function to detect placement from Hebrew text
+    const detectPlacement = (text) => {
+      if (!text) return '';
+      const lowerText = text.toLowerCase();
+      
+      // Hebrew placement mappings
+      const placements = {
+        'כתף': 'כתף',
+        'shoulder': 'כתף', 
+        'זרוע': 'זרוע',
+        'arm': 'זרוע',
+        'יד': 'יד',
+        'hand': 'יד',
+        'גב': 'גב',
+        'back': 'גב',
+        'רגל': 'רגל',
+        'leg': 'רגל',
+        'קרסול': 'קרסול',
+        'ankle': 'קרסול',
+        'צוואר': 'צוואר',
+        'neck': 'צוואר',
+        'חזה': 'חזה',
+        'chest': 'חזה'
+      };
+      
+      for (const [key, value] of Object.entries(placements)) {
+        if (lowerText.includes(key)) {
+          return value;
+        }
+      }
+      
+      return '';
+    };
+
+    // Transform MongoDB _id and normalize field names to match frontend expectations
+    const transformedClients = clients.map(client => {
+      const ideaSummary = client.ideaSummary || client.idea_summary || '';
+      const detectedPlacement = detectPlacement(ideaSummary);
+      
+      return {
+        ...client,
+        id: client._id.toString(),
+        // Normalize field names from different sources (n8n vs manual)
+        name: client.name || 'Unknown',
+        phone: client.phone || client.phone_number || '',
+        meetingType: client.meetingType || client.meeting_type || 'consultation',
+        ideaSummary: ideaSummary,
+        tattooDescription: client.tattooDescription || ideaSummary,
+        placement: client.placement || detectedPlacement,
+        aiActive: client.aiActive || client.ai_active || 'pending',
+        status: client.status || 'Consultation',
+        createdAt: client.createdAt ? new Date(client.createdAt) : (client.timestamp ? new Date(client.timestamp) : new Date()),
+        updatedAt: client.updatedAt ? new Date(client.updatedAt) : (client.updated_at ? new Date(client.updated_at) : new Date())
+      };
+    });
     
     res.json(transformedClients);
   } catch (error) {

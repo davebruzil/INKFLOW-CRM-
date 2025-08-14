@@ -14,6 +14,7 @@ export interface Client {
   placement?: string;
   size?: string;
   budget?: string;
+  referencePhotos?: string[];
   createdAt: Date;
   updatedAt: Date;
 }

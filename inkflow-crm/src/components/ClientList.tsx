@@ -20,7 +20,9 @@ const ClientList: React.FC = () => {
       setLoading(true);
       setError(null);
       const mongoData = await MongoDBService.fetchClients();
-      setClients(mongoData || []);
+      // Filter out invalid records with null names or phones
+      const validClients = (mongoData || []).filter(client => client.name && client.phone);
+      setClients(validClients);
     } catch (err) {
       console.error('Failed to load clients from MongoDB:', err);
       setError('Failed to load clients. Please check your MongoDB connection.');
@@ -94,8 +96,8 @@ const ClientList: React.FC = () => {
   };
 
   const filteredClients = clients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         client.phone.includes(searchTerm);
+    const matchesSearch = (client.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                         (client.phone || '').includes(searchTerm);
     const matchesFilter = filterStatus === '' || client.status === filterStatus;
     return matchesSearch && matchesFilter;
   });

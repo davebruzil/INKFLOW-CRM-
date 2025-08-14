@@ -2,18 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(claude mcp add voice-hooks npx mcp-voice-hooks@latest)",
-      "Bash(claude)",
-      "Bash(mkdir:*)",
-      "Bash(npm start)",
-      "Bash(npm run dev:*)",
-      "Bash(taskkill:*)",
-      "Bash(git rm:*)",
-      "Bash(rm:*)",
-      "Bash(git add:*)",
-      "Bash(npm run build:*)",
-      "Bash(node:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run dev:*)"
     ],
     "deny": []
   },

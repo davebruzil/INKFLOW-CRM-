@@ -1,0 +1,1 @@
+when provoked you go CONVO MODE and answer my Q/A

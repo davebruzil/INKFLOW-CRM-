@@ -1,7 +1,7 @@
 .client-list-container {
   width: 100vw;
   min-height: calc(100vh - 80px);
-  padding: 160px 24px 24px 24px;
+  padding: 280px 24px 24px 24px;
   background: white;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
@@ -152,14 +152,14 @@
 .client-item {
   display: flex;
   align-items: flex-start;
-  padding: 32px;
+  padding: 16px 24px;
   border: 1px solid #f0f0f0;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   background: white;
-  margin-bottom: 20px;
-  min-height: 140px;
+  margin-bottom: 12px;
+  min-height: 80px;
 }
 
 .client-item:hover {
@@ -174,21 +174,21 @@
 }
 
 .client-avatar {
-  margin-right: 24px;
+  margin-right: 16px;
 }
 
 .avatar-circle {
-  width: 72px;
-  height: 72px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: 3px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
-    0 8px 20px rgba(102, 126, 234, 0.2),
+    0 4px 12px rgba(102, 126, 234, 0.2),
     0 1px 0px rgba(255, 255, 255, 0.8) inset;
   position: relative;
 }
@@ -205,20 +205,20 @@
 }
 
 .client-name {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .client-description {
-  font-size: 16px;
+  font-size: 14px;
   color: #666;
-  margin-bottom: 12px;
-  line-height: 1.5;
-  max-width: 600px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  max-width: 500px;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -226,8 +226,8 @@
 
 .client-meta {
   display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .meeting-type {
@@ -274,16 +274,16 @@
 }
 
 .status-badge {
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-size: 14px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
   font-weight: 600;
   color: white;
   text-transform: capitalize;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.15),
     0 1px 0px rgba(255, 255, 255, 0.2) inset;
   position: relative;
   overflow: hidden;
@@ -305,7 +305,7 @@
 }
 
 .appointment-time {
-  font-size: 16px;
+  font-size: 12px;
   color: #666;
   font-weight: 500;
 }
@@ -322,21 +322,21 @@
 }
 
 .action-btn {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%);
   cursor: pointer;
-  font-size: 20px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 4px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   position: relative;
   overflow: hidden;
@@ -555,7 +555,7 @@
 
 @media (max-width: 768px) {
   .client-list-container {
-    padding: 16px;
+    padding: 280px 16px 16px 16px;
   }
   
   .header {

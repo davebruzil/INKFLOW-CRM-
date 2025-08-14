@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Client } from '../types/Client';
 import './ClientModal.css';
 
@@ -11,8 +11,10 @@ interface ClientModalProps {
 
 const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, onUpdate }) => {
   const [editableClient, setEditableClient] = useState<Client>({ ...client });
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (field: keyof Client, value: string) => {
+  const handleInputChange = (field: keyof Client, value: string | string[]) => {
     const updatedClient = {
       ...editableClient,
       [field]: value
@@ -26,6 +28,65 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
         onUpdate(clientId, { [field]: value });
       }
     }
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentPhotos = editableClient.referencePhotos || [];
+    const validFiles = Array.from(files).filter(file => {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert(`File ${file.name} is not an image and will be skipped.`);
+        return false;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`File ${file.name} is too large (max 5MB). Please choose a smaller image.`);
+        return false;
+      }
+      
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    try {
+      const newPhotosPromises = validFiles.map(file => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              resolve(e.target.result as string);
+            } else {
+              reject(new Error('Failed to read file'));
+            }
+          };
+          reader.onerror = () => reject(new Error('File reading failed'));
+          reader.readAsDataURL(file);
+        });
+      });
+
+      const newPhotos = await Promise.all(newPhotosPromises);
+      const updatedPhotos = [...currentPhotos, ...newPhotos];
+      handleInputChange('referencePhotos', updatedPhotos);
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      alert('Failed to upload some photos. Please try again.');
+    }
+
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemovePhoto = (photoIndex: number) => {
+    const currentPhotos = editableClient.referencePhotos || [];
+    const updatedPhotos = currentPhotos.filter((_, index) => index !== photoIndex);
+    handleInputChange('referencePhotos', updatedPhotos);
   };
 
   const getStatusColor = (status: string) => {
@@ -175,6 +236,50 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
               </div>
             </div>
           </div>
+
+          <div className="section">
+            <h3>Reference Photos</h3>
+            <div className="photo-section">
+              <div className="photo-upload-area">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="photo-input"
+                  id="photo-upload"
+                />
+                <label htmlFor="photo-upload" className="photo-upload-button">
+                  <span className="upload-icon">📸</span>
+                  <span>Add Reference Photos</span>
+                  <span className="upload-hint">Click to upload images</span>
+                </label>
+              </div>
+              
+              {editableClient.referencePhotos && editableClient.referencePhotos.length > 0 && (
+                <div className="photo-gallery">
+                  {editableClient.referencePhotos.map((photo, index) => (
+                    <div key={index} className="photo-item">
+                      <img 
+                        src={photo} 
+                        alt={`Reference ${index + 1}`} 
+                        className="photo-thumbnail"
+                        onClick={() => setFullscreenPhoto(photo)}
+                      />
+                      <button
+                        onClick={() => handleRemovePhoto(index)}
+                        className="photo-remove-btn"
+                        title="Remove photo"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
           
           {onReject && (
             <div className="modal-footer">
@@ -194,6 +299,22 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
           )}
         </div>
       </div>
+      
+      {/* Fullscreen Photo Modal */}
+      {fullscreenPhoto && (
+        <div className="fullscreen-overlay" onClick={() => setFullscreenPhoto(null)}>
+          <div className="fullscreen-content" onClick={(e) => e.stopPropagation()}>
+            <img src={fullscreenPhoto} alt="Reference photo" className="fullscreen-image" />
+            <button 
+              className="fullscreen-close-btn"
+              onClick={() => setFullscreenPhoto(null)}
+              title="Close"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

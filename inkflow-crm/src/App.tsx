@@ -3,7 +3,6 @@ import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth } from './config/firebase';
 import ClientList from './components/ClientList';
 import Login from './components/Login';
-import DatabaseTest from './components/DatabaseTest';
 import './App.css';
 
 function App() {
@@ -54,7 +53,6 @@ function App() {
       </div>
       <div className="centered">
         <ClientList />
-        <DatabaseTest />
       </div>
     </div>
   );

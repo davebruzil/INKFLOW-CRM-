@@ -1,6 +1,6 @@
 ---
 name: "SEVEN"
-description: "Execute the 7-step development workflow"
+description: "Execute the 7-step development workflow"caldue
 ---
 
 # ULTRATHINK - 7-Step Development Workflow
