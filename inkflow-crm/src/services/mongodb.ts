@@ -1,5 +1,6 @@
 import { apiRequest, isBackendAvailable } from '../config/mongodb';
 import { FallbackService } from './fallbackService';
+import { AuthErrorHandler } from '../utils/authErrorHandler';
 import type { Client } from '../types/Client';
 
 export class MongoDBService {
@@ -18,6 +19,13 @@ export class MongoDBService {
       return clients;
     } catch (error) {
       console.error('❌ Error fetching clients from backend, using fallback:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.fetchClients();
     }
   }
@@ -39,6 +47,13 @@ export class MongoDBService {
       return newClient;
     } catch (error) {
       console.error('❌ Error creating client via backend, using fallback:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.addClient(clientData);
     }
   }
@@ -60,6 +75,13 @@ export class MongoDBService {
       return updatedClient;
     } catch (error) {
       console.error('❌ Error updating client via backend, using fallback:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.updateClient(clientId, updates);
     }
   }
@@ -79,6 +101,13 @@ export class MongoDBService {
       });
     } catch (error) {
       console.error('❌ Error deleting client via backend, using fallback:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.deleteClient(clientId);
     }
   }
@@ -95,6 +124,13 @@ export class MongoDBService {
       return clients.find((client: Client) => client.phone === phone) || null;
     } catch (error) {
       console.error('❌ Error finding client by phone via backend:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.findClientByPhone(phone);
     }
   }
@@ -111,6 +147,13 @@ export class MongoDBService {
       return clients;
     } catch (error) {
       console.error('❌ Error searching clients via backend:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.searchClients(query);
     }
   }
@@ -128,6 +171,13 @@ export class MongoDBService {
       return allClients.filter(client => client.aiActive === aiActive);
     } catch (error) {
       console.error('❌ Error fetching clients by AI status via backend:', error);
+      
+      // Handle authentication errors
+      if (error instanceof Error && error.message.includes('Authentication')) {
+        await AuthErrorHandler.handleAuthError(error);
+        throw error;
+      }
+      
       return FallbackService.getClientsByAIStatus(aiActive);
     }
   }

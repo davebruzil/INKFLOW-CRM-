@@ -1,4 +1,13 @@
-upload t# Logs
+# Environment files - NEVER commit credentials
+.env
+.env.local
+.env.production
+.env.staging
+.env.secure
+*.env
+!.env.example
+
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -7,10 +16,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node.js dependencies
 node_modules
 dist
 dist-ssr
 *.local
+
+# Build outputs
+build/
+.vite/
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +36,34 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS generated files
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Security sensitive files
+*private-key*
+*credentials*
+*secrets*
+*.pem
+*.p12
+service-account*.json
+firebase-adminsdk*.json
+google-services.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# Firebase config (if containing sensitive data)
+# firebase-config.ts
+# firebase-config.js
+
+# Capacitor
+.capacitor
+
+# TypeScript
+*.tsbuildinfo

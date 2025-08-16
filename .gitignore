@@ -69,3 +69,29 @@ dump/
 *private-key*
 *credentials*
 *secrets*
+*.pem
+*.p12
+service-account*.json
+firebase-adminsdk*.json
+google-services.json
+
+# Android Keystore files
+*.jks
+*.keystore
+key.properties
+release.properties
+
+# Additional sensitive files
+.env.secure
+config.local.json
+local.config.json
+
+# SSH keys
+id_rsa
+id_ed25519
+*.key
+
+# SSL/TLS certificates
+*.crt
+*.cert
+*.cer

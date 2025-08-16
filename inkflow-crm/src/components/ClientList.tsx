@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Client } from '../types/Client';
 // import { mockClients } from '../data/mockData'; // Using MongoDB/fallback service instead
 import { MongoDBService } from '../services/mongodb';
+import { AuthErrorHandler } from '../utils/authErrorHandler';
 import ClientModal from './ClientModal';
 import './ClientList.css';
 import whatsappLogo from '../assets/whatsapp.png';
@@ -25,7 +26,8 @@ const ClientList: React.FC = () => {
       setClients(validClients);
     } catch (err) {
       console.error('Failed to load clients from MongoDB:', err);
-      setError('Failed to load clients. Please check your MongoDB connection.');
+      const errorMessage = err instanceof Error ? AuthErrorHandler.getUserFriendlyMessage(err) : 'Failed to load clients. Please check your connection.';
+      setError(errorMessage);
       setClients([]);
     } finally {
       setLoading(false);
@@ -66,7 +68,8 @@ const ClientList: React.FC = () => {
         console.log('Client deleted from MongoDB successfully.');
       } catch (error) {
         console.error('Failed to delete client:', error);
-        setError('Failed to delete client from database.');
+        const errorMessage = error instanceof Error ? AuthErrorHandler.getUserFriendlyMessage(error) : 'Failed to delete client from database.';
+        setError(errorMessage);
       }
     }
     setConfirmDelete({show: false, client: null});
@@ -91,7 +94,8 @@ const ClientList: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to update client:', error);
-      setError('Failed to update client in database.');
+      const errorMessage = error instanceof Error ? AuthErrorHandler.getUserFriendlyMessage(error) : 'Failed to update client in database.';
+      setError(errorMessage);
     }
   };
 

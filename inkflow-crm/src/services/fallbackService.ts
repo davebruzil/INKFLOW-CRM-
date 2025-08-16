@@ -1,4 +1,5 @@
 import type { Client } from '../types/Client';
+import { OfflineStorageService } from './offlineStorageService';
 
 // In-memory storage for demo purposes with Hebrew client samples
 const mockDatabase: Client[] = [
@@ -114,12 +115,35 @@ const mockDatabase: Client[] = [
 let nextId = 7;
 
 export class FallbackService {
-  // Fetch all clients
+  // Fetch all clients with offline support
   static async fetchClients(): Promise<Client[]> {
-    // Sort by createdAt descending
-    return [...mockDatabase].sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    try {
+      // Check if we have cached data and if it's fresh
+      const isStale = await OfflineStorageService.isCacheStale();
+      
+      if (!isStale) {
+        const cachedClients = await OfflineStorageService.getCachedClients();
+        if (cachedClients.length > 0) {
+          console.log('Using cached clients');
+          return cachedClients;
+        }
+      }
+      
+      // Fetch fresh data
+      console.log('Fetching fresh client data');
+      const freshClients = [...mockDatabase].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      // Cache the fresh data
+      await OfflineStorageService.cacheClients(freshClients);
+      
+      return freshClients;
+    } catch (error) {
+      console.error('Error fetching clients, using cache:', error);
+      // Fallback to cached data even if stale
+      return await OfflineStorageService.getCachedClients();
+    }
   }
 
   // Add a new client
@@ -141,6 +165,11 @@ export class FallbackService {
 
     nextId++;
     mockDatabase.push(newClient);
+    
+    // Update cache with new client
+    await OfflineStorageService.cacheClients([...mockDatabase].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ));
     
     return newClient;
   }
@@ -167,6 +196,11 @@ export class FallbackService {
       ...updateData,
     };
 
+    // Update cache after client update
+    await OfflineStorageService.cacheClients([...mockDatabase].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ));
+
     return mockDatabase[clientIndex];
   }
 
@@ -179,6 +213,11 @@ export class FallbackService {
     }
 
     mockDatabase.splice(clientIndex, 1);
+    
+    // Update cache after client deletion
+    await OfflineStorageService.cacheClients([...mockDatabase].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ));
   }
 
   // Find client by phone
