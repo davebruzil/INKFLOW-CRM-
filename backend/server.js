@@ -394,7 +394,7 @@ app.get('/api/clients', authenticateFirebaseToken, async (req, res) => {
     const transformedClients = clients.map(client => {
       const ideaSummary = client.ideaSummary || client.idea_summary || '';
       const detectedPlacement = detectPlacement(ideaSummary);
-      
+
       return {
         ...client,
         id: client._id.toString(),
@@ -407,6 +407,8 @@ app.get('/api/clients', authenticateFirebaseToken, async (req, res) => {
         placement: client.placement || detectedPlacement,
         aiActive: client.aiActive || client.ai_active || 'pending',
         status: client.status || 'Consultation',
+        // Map images field to referencePhotos for frontend compatibility
+        referencePhotos: client.referencePhotos || client.images || [],
         createdAt: client.createdAt ? new Date(client.createdAt) : (client.timestamp ? new Date(client.timestamp) : new Date()),
         updatedAt: client.updatedAt ? new Date(client.updatedAt) : (client.updated_at ? new Date(client.updated_at) : new Date())
       };

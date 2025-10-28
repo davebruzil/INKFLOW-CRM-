@@ -15,22 +15,78 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Debug: Log reference photos when modal opens
-  console.log('ClientModal - Reference Photos:', editableClient.referencePhotos);
-  console.log('ClientModal - First photo structure:', editableClient.referencePhotos?.[0]);
+  console.log('=== ClientModal DEBUG ===');
+  console.log('Client name:', editableClient.name);
+  console.log('Reference Photos:', editableClient.referencePhotos);
+  console.log('Reference Photos length:', editableClient.referencePhotos?.length);
+  console.log('Images field:', editableClient.images);
+  console.log('Images length:', editableClient.images?.length);
+  console.log('First photo:', editableClient.referencePhotos?.[0]);
+  if (editableClient.referencePhotos?.[0]) {
+    const first = editableClient.referencePhotos[0];
+    console.log('First photo type:', typeof first);
+    if (typeof first === 'object') {
+      console.log('First photo keys:', Object.keys(first));
+      console.log('Has base64:', 'base64' in first);
+      console.log('Has url:', 'url' in first);
+      if (first.base64) {
+        console.log('base64 length:', first.base64.length);
+        console.log('base64 preview:', first.base64.substring(0, 100));
+      }
+      if (first.url) {
+        console.log('url value:', first.url);
+      }
+    }
+  }
 
   // Helper function to extract URL from photo (handles both string URLs and objects)
   const getPhotoUrl = (photo: any): string => {
+    console.log('🔍 getPhotoUrl called with:', photo);
     let originalUrl = '';
 
     if (typeof photo === 'string') {
       originalUrl = photo;
+      console.log('📝 Photo is string:', originalUrl.substring(0, 50));
     } else if (typeof photo === 'object' && photo !== null) {
+      console.log('📦 Photo is object with keys:', Object.keys(photo));
+
       // PRIORITY: Check for base64 first (permanent), then fall back to URL (temporary)
-      originalUrl = photo.base64 || photo.url || photo.downloadUrl || photo.src || photo.link || photo.fileUrl || '';
+      if (photo.base64) {
+        console.log('✅ Found base64 field, length:', photo.base64.length);
+        console.log('✅ Base64 starts with:', photo.base64.substring(0, 50));
+        originalUrl = photo.base64;
+      } else if (photo.url) {
+        console.log('⚠️ No base64, using url field:', photo.url.substring(0, 50));
+        originalUrl = photo.url;
+      } else {
+        console.log('❌ No base64 or url found, checking other fields...');
+        originalUrl = photo.downloadUrl || photo.src || photo.link || photo.fileUrl || '';
+      }
     }
 
-    // Base64 images can be used directly - no proxy needed
+    console.log('🎯 Original URL extracted:', originalUrl.substring(0, 50));
+
+    // Base64 images can be used directly - but check for double-encoding
     if (originalUrl && originalUrl.startsWith('data:image')) {
+      // Check if the base64 data is double-encoded
+      // If it starts with "LzlqLz" it means "/9j/" was base64-encoded again
+      const base64Part = originalUrl.split(',')[1];
+      if (base64Part && base64Part.startsWith('LzlqLz')) {
+        console.log('⚠️ Detected double-encoded base64, decoding once...');
+        try {
+          // Decode the outer base64 layer to get the actual image base64
+          const decoded = atob(base64Part);
+          // Reconstruct the data URI with the decoded base64
+          const mimeMatch = originalUrl.match(/data:(image\/[^;]+);base64,/);
+          const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+          const correctedUrl = `data:${mimeType};base64,${decoded}`;
+          console.log('✅ Corrected URL starts with:', correctedUrl.substring(0, 50));
+          return correctedUrl;
+        } catch (err) {
+          console.error('❌ Failed to decode double-encoded base64:', err);
+        }
+      }
+      console.log('✅ Returning base64 image directly');
       return originalUrl;
     }
 
@@ -43,6 +99,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
       return proxyUrl;
     }
 
+    console.log('⚠️ Returning URL as-is:', originalUrl.substring(0, 50));
     return originalUrl;
   };
 
