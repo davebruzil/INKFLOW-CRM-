@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import type { Client } from '../types/Client';
+import type { Client, N8nImage } from '../types/Client';
 import './ClientModal.css';
 
 interface ClientModalProps {
@@ -46,13 +46,13 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
     return originalUrl;
   };
 
-  const handleInputChange = (field: keyof Client, value: string | string[]) => {
+  const handleInputChange = (field: keyof Client, value: string | string[] | (string | N8nImage)[]) => {
     const updatedClient = {
       ...editableClient,
       [field]: value
     };
     setEditableClient(updatedClient);
-    
+
     // Immediately save changes locally
     if (onUpdate) {
       const clientId = client.id || client._id?.toString();
