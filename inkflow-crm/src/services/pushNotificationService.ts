@@ -4,15 +4,15 @@ export class PushNotificationService {
     return;
   }
 
-  static async saveTokenToServer(token: string) {
+  static async saveTokenToServer(_token: string) {
     console.log('Push token saving disabled for web version');
   }
 
-  static showLocalNotification(notification: any) {
+  static showLocalNotification(_notification: any) {
     console.log('Local notifications disabled for web version');
   }
 
-  static handleNotificationAction(notification: any) {
+  static handleNotificationAction(_notification: any) {
     console.log('Notification actions disabled for web version');
   }
 
