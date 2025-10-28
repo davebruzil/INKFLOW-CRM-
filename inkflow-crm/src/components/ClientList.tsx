@@ -238,12 +238,12 @@ const ClientList: React.FC = () => {
                   </div>
 
                   <div className="client-actions">
-                    <button 
+                    <button
                       className="action-btn whatsapp"
                       onClick={(e) => {
                         e.stopPropagation();
                         const phoneNumber = client.phone.replace(/[^\d]/g, '');
-                        window.open(`https://wa.me/1${phoneNumber}`, '_blank');
+                        window.open(`https://wa.me/${phoneNumber}`, '_blank');
                       }}
                     >
                       <img src={whatsappLogo} alt="WhatsApp" width="20" height="20" />

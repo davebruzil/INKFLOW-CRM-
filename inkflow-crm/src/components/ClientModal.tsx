@@ -179,7 +179,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
                   <div className="contact-value">
                     {editableClient.phone ? (
                       <a
-                        href={`https://wa.me/1${editableClient.phone.replace(/[^\d]/g, '')}`}
+                        href={`https://wa.me/${editableClient.phone.replace(/[^\d]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="whatsapp-link"
