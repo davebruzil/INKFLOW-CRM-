@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "inkflow-crm/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "inkflow-crm/dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
