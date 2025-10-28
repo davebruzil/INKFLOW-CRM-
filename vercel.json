@@ -1,18 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "cd inkflow-crm && npm run build",
+  "outputDirectory": "inkflow-crm/dist",
+  "installCommand": "cd inkflow-crm && npm install",
+  "framework": "vite",
+  "rewrites": [
     {
-      "src": "inkflow-crm/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "inkflow-crm/dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
