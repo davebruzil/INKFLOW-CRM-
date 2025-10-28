@@ -25,8 +25,13 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
     if (typeof photo === 'string') {
       originalUrl = photo;
     } else if (typeof photo === 'object' && photo !== null) {
-      // Try common property names for image URLs
-      originalUrl = photo.url || photo.downloadUrl || photo.src || photo.link || photo.fileUrl || '';
+      // PRIORITY: Check for base64 first (permanent), then fall back to URL (temporary)
+      originalUrl = photo.base64 || photo.url || photo.downloadUrl || photo.src || photo.link || photo.fileUrl || '';
+    }
+
+    // Base64 images can be used directly - no proxy needed
+    if (originalUrl && originalUrl.startsWith('data:image')) {
+      return originalUrl;
     }
 
     // If the URL is external (from wasenderapi.com), proxy it through our backend

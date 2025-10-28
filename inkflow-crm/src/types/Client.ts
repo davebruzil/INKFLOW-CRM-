@@ -1,3 +1,11 @@
+// n8n image object structure
+export interface N8nImage {
+  url: string;           // Temporary wasenderapi.com URL (expires)
+  base64: string;        // Permanent base64 image (use this!)
+  analysis?: string;     // AI analysis text
+  timestamp?: string;    // When the image was received
+}
+
 export interface Client {
   _id?: string;
   id?: string;
@@ -14,8 +22,8 @@ export interface Client {
   placement?: string;
   size?: string;
   budget?: string;
-  referencePhotos?: string[];
-  images?: string[]; // Alternative field name used by n8n
+  referencePhotos?: (string | N8nImage)[];  // Can be string URLs or n8n objects
+  images?: (string | N8nImage)[];           // Alternative field name used by n8n
   createdAt: Date;
   updatedAt: Date;
 
