@@ -47,6 +47,16 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation project(':capacitor-android')
+    
+    // Firebase BoM - manages all Firebase library versions
+    implementation platform('com.google.firebase:firebase-bom:34.1.0')
+    
+    // Firebase Auth - for authentication
+    implementation 'com.google.firebase:firebase-auth'
+    
+    // Google Play Services Auth - for Google Sign-In
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

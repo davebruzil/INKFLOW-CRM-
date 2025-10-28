@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-// import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-// import { auth } from './config/firebase';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { auth } from './config/firebase';
 import ClientList from './components/ClientList';
-// import Login from './components/Login';
+import Login from './components/Login';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
@@ -10,7 +10,7 @@ import { Capacitor } from '@capacitor/core';
 import './App.css';
 
 function App() {
-  // const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,27 +35,24 @@ function App() {
         setTimeout(() => setLoading(false), 2000);
       } else {
         // Web platform
-        // const unsubscribe = onAuthStateChanged(auth, (user) => {
-        //   setUser(user);
-        //   setLoading(false);
-        // });
-        // return () => unsubscribe();
-        
-        // Skip Firebase for now - go directly to main page
-        setTimeout(() => setLoading(false), 1000);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+          setLoading(false);
+        });
+        return () => unsubscribe();
       }
     };
 
     initializeApp();
   }, []);
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await signOut(auth);
-  //   } catch (error) {
-  //     console.error('Error signing out:', error);
-  //   }
-  // };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -73,19 +70,18 @@ function App() {
     );
   }
 
-  // Skip login for now - go directly to main page
-  // if (!user) {
-  //   return <Login onLogin={() => setUser(auth.currentUser)} />;
-  // }
+  if (!user) {
+    return <Login onLogin={() => setUser(auth.currentUser)} />;
+  }
 
   return (
     <div className="App authenticated">
       <div className="app-header">
         <div className="user-info">
-          <span>Welcome to INKFLOW CRM</span>
-          {/* <button onClick={handleLogout} className="logout-btn">
+          <span>Welcome, {user.displayName || user.email}</span>
+          <button onClick={handleLogout} className="logout-btn">
             Logout
-          </button> */}
+          </button>
         </div>
       </div>
       <div className="centered">

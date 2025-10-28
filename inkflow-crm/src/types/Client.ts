@@ -15,6 +15,16 @@ export interface Client {
   size?: string;
   budget?: string;
   referencePhotos?: string[];
+  images?: string[]; // Alternative field name used by n8n
   createdAt: Date;
   updatedAt: Date;
+
+  // n8n field mappings (snake_case versions) - optional for compatibility
+  client_name?: string;
+  phone_number?: string;
+  meeting_type?: string;
+  idea_summary?: string;
+  ai_active?: boolean;
+  created_at?: Date | string;
+  updated_at?: Date | string;
 }

@@ -6,6 +6,9 @@ const { body, param, query, validationResult } = require('express-validator');
 const mongoSanitize = require('mongo-sanitize');
 const { MongoClient, ObjectId } = require('mongodb');
 const admin = require('firebase-admin');
+const https = require('https');
+const http = require('http');
+const { URL } = require('url');
 require('dotenv').config();
 
 // Initialize Firebase Admin SDK - SECURE VERSION
@@ -156,7 +159,16 @@ app.use(limiter);
 // CORS configuration - more restrictive
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
   'https://localhost:5173',
+  'https://localhost:5174',
+  'https://localhost:5175',
+  'http://10.0.0.8:5173', // Local network access for mobile testing
+  'http://10.0.0.8:3001', // Backend on local network
+  'capacitor://localhost', // Capacitor iOS
+  'http://localhost', // Capacitor Android
+  'ionic://localhost', // Ionic dev server
   process.env.CORS_ORIGIN
 ].filter(Boolean);
 
@@ -257,8 +269,8 @@ const validateObjectId = (req, res, next) => {
 
 // Health check endpoint (public)
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     database: db ? 'Connected' : 'Disconnected',
     timestamp: new Date().toISOString()
   });
@@ -266,6 +278,69 @@ app.get('/health', (req, res) => {
 
 // Apply strict rate limiting to all API routes
 app.use('/api', strictLimiter);
+
+// Image proxy endpoint to bypass CORS restrictions (placed after rate limiter to allow liberal access)
+app.get('/proxy-image', [
+  query('url').isURL().withMessage('Valid URL is required'),
+], async (req, res) => {
+  console.log('🖼️ Image proxy request received:', req.query.url);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.error('❌ Invalid URL:', errors.array());
+    return res.status(400).json({ error: 'Invalid image URL', details: errors.array() });
+  }
+
+  const imageUrl = req.query.url;
+  console.log('🔗 Proxying image from:', imageUrl);
+
+  try {
+    // Validate URL is from allowed domains (security)
+    const parsedUrl = new URL(imageUrl);
+    const allowedDomains = ['wasenderapi.com', 'www.wasenderapi.com'];
+
+    if (!allowedDomains.includes(parsedUrl.hostname)) {
+      console.error('❌ Domain not allowed:', parsedUrl.hostname);
+      return res.status(403).json({ error: 'Domain not allowed' });
+    }
+
+    console.log('✅ Domain allowed, fetching image...');
+
+    // Determine which protocol to use
+    const protocol = parsedUrl.protocol === 'https:' ? https : http;
+
+    // Fetch the image
+    protocol.get(imageUrl, (imageRes) => {
+      console.log('📥 Image response status:', imageRes.statusCode);
+
+      // Check if request was successful
+      if (imageRes.statusCode !== 200) {
+        console.error('❌ Failed to fetch image, status:', imageRes.statusCode);
+        return res.status(imageRes.statusCode).json({
+          error: 'Failed to fetch image',
+          statusCode: imageRes.statusCode
+        });
+      }
+
+      // Set appropriate headers
+      res.setHeader('Content-Type', imageRes.headers['content-type'] || 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      console.log('✅ Piping image to client...');
+
+      // Pipe the image data to response
+      imageRes.pipe(res);
+    }).on('error', (error) => {
+      console.error('❌ Image proxy error:', error);
+      res.status(500).json({ error: 'Failed to fetch image', details: error.message });
+    });
+
+  } catch (error) {
+    console.error('❌ Image proxy error:', error);
+    res.status(500).json({ error: 'Failed to proxy image', details: error.message });
+  }
+});
 
 // CRUD API Routes for Clients - All routes require authentication
 
