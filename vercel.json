@@ -14,9 +14,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "ignore": [
-    "inkflow-crm/android/**",
-    "inkflow-crm/ios/**"
   ]
 }
