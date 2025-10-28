@@ -3,10 +3,6 @@ import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth } from './config/firebase';
 import ClientList from './components/ClientList';
 import Login from './components/Login';
-import { StatusBar, Style } from '@capacitor/status-bar';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { Capacitor } from '@capacitor/core';
-// import { PushNotificationService } from './services/pushNotificationService';
 import './App.css';
 
 function App() {
@@ -14,36 +10,12 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize mobile app features
-    const initializeApp = async () => {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          // Configure status bar
-          await StatusBar.setStyle({ style: Style.Dark });
-          await StatusBar.setBackgroundColor({ color: '#1a1a2e' });
-          
-          // Skip push notifications for now
-          // await PushNotificationService.initialize();
-          
-          // Hide splash screen after app loads
-          await SplashScreen.hide();
-        } catch (error) {
-          console.log('Mobile initialization error:', error);
-        }
-        
-        // Force loading to false on mobile for testing
-        setTimeout(() => setLoading(false), 2000);
-      } else {
-        // Web platform
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setUser(user);
-          setLoading(false);
-        });
-        return () => unsubscribe();
-      }
-    };
-
-    initializeApp();
+    // Initialize app for web platform
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
@@ -60,11 +32,6 @@ function App() {
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Loading INKFLOW CRM...</p>
-          {Capacitor.isNativePlatform() && (
-            <p style={{color: 'green', marginTop: '10px'}}>
-              ✓ Running on Native Platform (Android)
-            </p>
-          )}
         </div>
       </div>
     );
