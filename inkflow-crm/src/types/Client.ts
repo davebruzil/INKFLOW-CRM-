@@ -24,6 +24,9 @@ export interface Client {
   budget?: string;
   referencePhotos?: (string | N8nImage)[];  // Can be string URLs or n8n objects
   images?: (string | N8nImage)[];           // Alternative field name used by n8n
+  calendarEventId?: string;                 // Google Calendar event ID
+  calendarEventLink?: string;               // Google Calendar event link
+  consultationDate?: string;                // ISO 8601 date-time string
   createdAt: Date;
   updatedAt: Date;
 
