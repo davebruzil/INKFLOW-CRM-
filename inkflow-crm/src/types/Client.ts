@@ -14,7 +14,7 @@ export interface Client {
   meetingType: 'consultation' | 'appointment' | 'follow-up';
   ideaSummary: string;
   aiActive: 'completed' | 'error' | 'pending' | 'in_progress';
-  status: 'Consultation' | 'In Progress' | 'Booked' | 'Completed' | 'Canceled' | 'Consultation Scheduled';
+  status: 'Consultation' | 'In Progress' | 'Booked' | 'Completed' | 'Canceled' | 'Consultation Scheduled' | 'scheduled';
   nextAppointment?: string;
   email?: string;
   instagram?: string;
