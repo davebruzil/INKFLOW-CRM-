@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import type { Client, N8nImage } from '../types/Client';
+import CalendarBooking from './CalendarBooking';
 import './ClientModal.css';
 
 interface ClientModalProps {
@@ -93,7 +94,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
     // If the URL is external (from wasenderapi.com), proxy it through our backend
     if (originalUrl && (originalUrl.includes('wasenderapi.com') || originalUrl.startsWith('http'))) {
       // Proxy through our backend to bypass CORS (note: /proxy-image not /api/proxy-image to avoid rate limiting)
-      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiBaseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
       const proxyUrl = `${apiBaseUrl}/proxy-image?url=${encodeURIComponent(originalUrl)}`;
       console.log('🖼️ Using proxy URL:', proxyUrl);
       return proxyUrl;
@@ -264,6 +265,66 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
             </div>
           </div>
 
+          <div className="section">
+            <h3>Reference Photos</h3>
+            <div className="photo-section">
+              <div className="photo-upload-area">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="photo-input"
+                  id="photo-upload"
+                />
+                <label htmlFor="photo-upload" className="photo-upload-button">
+                  <svg className="upload-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>Add Reference Photos</span>
+                  <span className="upload-hint">Click to upload images</span>
+                </label>
+              </div>
+
+              {editableClient.referencePhotos && editableClient.referencePhotos.length > 0 && (
+                <div className="photo-gallery">
+                  {editableClient.referencePhotos.map((photo, index) => {
+                    const photoUrl = getPhotoUrl(photo);
+                    console.log(`Photo ${index} URL:`, photoUrl);
+
+                    return (
+                      <div key={index} className="photo-item">
+                        <img
+                          src={photoUrl}
+                          alt={`Reference ${index + 1}`}
+                          className="photo-thumbnail"
+                          onClick={() => setFullscreenPhoto(photoUrl)}
+                          onError={(e) => {
+                            console.error(`Failed to load image:`, photo);
+                            console.log('Extracted URL:', photoUrl);
+                            console.log('Photo object:', JSON.stringify(photo, null, 2));
+                            // Add a fallback styling for broken images
+                            e.currentTarget.style.display = 'none';
+                            const parent = e.currentTarget.parentElement;
+                            if (parent && !parent.querySelector('.image-error')) {
+                              const errorDiv = document.createElement('div');
+                              errorDiv.className = 'image-error';
+                              const displayUrl = photoUrl.substring(0, 30) || 'No URL';
+                              errorDiv.innerHTML = `<div style="padding: 8px;">❌ Failed to load<br/><small style="font-size: 10px; opacity: 0.7;">${displayUrl}...</small></div>`;
+                              errorDiv.style.cssText = 'display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; color: #dc3545; text-align: center;';
+                              parent.appendChild(errorDiv);
+                            }
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="editable-section">
             <h3>Details</h3>
 
@@ -354,65 +415,25 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onReject, on
           </div>
 
           <div className="section">
-            <h3>Reference Photos</h3>
-            <div className="photo-section">
-              <div className="photo-upload-area">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="photo-input"
-                  id="photo-upload"
-                />
-                <label htmlFor="photo-upload" className="photo-upload-button">
-                  <svg className="upload-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span>Add Reference Photos</span>
-                  <span className="upload-hint">Click to upload images</span>
-                </label>
-              </div>
-              
-              {editableClient.referencePhotos && editableClient.referencePhotos.length > 0 && (
-                <div className="photo-gallery">
-                  {editableClient.referencePhotos.map((photo, index) => {
-                    const photoUrl = getPhotoUrl(photo);
-                    console.log(`Photo ${index} URL:`, photoUrl);
-
-                    return (
-                      <div key={index} className="photo-item">
-                        <img
-                          src={photoUrl}
-                          alt={`Reference ${index + 1}`}
-                          className="photo-thumbnail"
-                          onClick={() => setFullscreenPhoto(photoUrl)}
-                          onError={(e) => {
-                            console.error(`Failed to load image:`, photo);
-                            console.log('Extracted URL:', photoUrl);
-                            console.log('Photo object:', JSON.stringify(photo, null, 2));
-                            // Add a fallback styling for broken images
-                            e.currentTarget.style.display = 'none';
-                            const parent = e.currentTarget.parentElement;
-                            if (parent && !parent.querySelector('.image-error')) {
-                              const errorDiv = document.createElement('div');
-                              errorDiv.className = 'image-error';
-                              const displayUrl = photoUrl.substring(0, 30) || 'No URL';
-                              errorDiv.innerHTML = `<div style="padding: 8px;">❌ Failed to load<br/><small style="font-size: 10px; opacity: 0.7;">${displayUrl}...</small></div>`;
-                              errorDiv.style.cssText = 'display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; color: #dc3545; text-align: center;';
-                              parent.appendChild(errorDiv);
-                            }
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <CalendarBooking
+              clientId={client.id || client._id?.toString() || ''}
+              clientName={editableClient.name}
+              clientPhone={editableClient.phone}
+              clientEmail={editableClient.email}
+              existingEventId={editableClient.calendarEventId}
+              existingEventLink={editableClient.calendarEventLink}
+              onEventCreated={(eventId, eventLink) => {
+                handleInputChange('calendarEventId', eventId);
+                handleInputChange('calendarEventLink', eventLink);
+                handleInputChange('status', 'scheduled');
+              }}
+              onEventDeleted={() => {
+                handleInputChange('calendarEventId', '');
+                handleInputChange('calendarEventLink', '');
+              }}
+            />
           </div>
-          
+
           {onReject && (
             <div className="modal-footer">
               <button
