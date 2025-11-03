@@ -1,55 +1,69 @@
 // Firebase Cloud Messaging Service Worker (V1 API)
-// This file handles background notifications when the app is closed or not in focus
+// This file handles background notifications when the app is closed
 
-// Import Firebase scripts for service worker (V9 modular SDK)
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
+console.log('[Service Worker] Firebase Messaging SW loaded');
 
-// Initialize Firebase in the service worker
-const firebaseConfig = {
-  apiKey: "AIzaSyAK7fpgpjWVz-y1lWGTpAEzEFWvuOZDYo4",
-  authDomain: "easybook-d2633.firebaseapp.com",
-  projectId: "easybook-d2633",
-  storageBucket: "easybook-d2633.firebasestorage.app",
-  messagingSenderId: "87072368963",
-  appId: "1:87072368963:web:98552a5be13f8cb628a7f6"
-};
+// Listen for push events (sent by Firebase)
+self.addEventListener('push', function(event) {
+  console.log('[Service Worker] Push received:', event);
 
-firebase.initializeApp(firebaseConfig);
-
-// Retrieve an instance of Firebase Messaging
-const messaging = firebase.messaging();
-
-// Handle background messages
-messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message:', payload);
-
-  const notificationTitle = payload.notification?.title || 'New Client Added';
-  const notificationOptions = {
-    body: payload.notification?.body || 'A new client has been added to your CRM',
+  let notificationData = {
+    title: 'New Client Added',
+    body: 'A new client has been added to your CRM',
     icon: '/vite.svg',
     badge: '/vite.svg',
     tag: 'new-client-notification',
-    requireInteraction: true,
-    data: payload.data,
-    actions: [
-      {
-        action: 'view',
-        title: 'View Client'
-      },
-      {
-        action: 'close',
-        title: 'Dismiss'
-      }
-    ]
+    requireInteraction: true
   };
 
-  return self.registration.showNotification(notificationTitle, notificationOptions);
+  // If FCM sent data with the push
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      console.log('[Service Worker] Push data:', payload);
+
+      // Extract notification data from FCM payload
+      if (payload.notification) {
+        notificationData.title = payload.notification.title || notificationData.title;
+        notificationData.body = payload.notification.body || notificationData.body;
+      }
+
+      // Store custom data for click handling
+      notificationData.data = payload.data || {};
+    } catch (e) {
+      console.error('[Service Worker] Error parsing push data:', e);
+    }
+  }
+
+  // Show the notification
+  const promiseChain = self.registration.showNotification(
+    notificationData.title,
+    {
+      body: notificationData.body,
+      icon: notificationData.icon,
+      badge: notificationData.badge,
+      tag: notificationData.tag,
+      requireInteraction: notificationData.requireInteraction,
+      data: notificationData.data,
+      actions: [
+        {
+          action: 'view',
+          title: 'View Client'
+        },
+        {
+          action: 'close',
+          title: 'Dismiss'
+        }
+      ]
+    }
+  );
+
+  event.waitUntil(promiseChain);
 });
 
 // Handle notification clicks
-self.addEventListener('notificationclick', (event) => {
-  console.log('[firebase-messaging-sw.js] Notification clicked:', event);
+self.addEventListener('notificationclick', function(event) {
+  console.log('[Service Worker] Notification clicked:', event);
 
   event.notification.close();
 
@@ -59,4 +73,16 @@ self.addEventListener('notificationclick', (event) => {
       clients.openWindow('/')
     );
   }
+});
+
+// Service worker installation
+self.addEventListener('install', function(event) {
+  console.log('[Service Worker] Installing...');
+  self.skipWaiting();
+});
+
+// Service worker activation
+self.addEventListener('activate', function(event) {
+  console.log('[Service Worker] Activating...');
+  event.waitUntil(clients.claim());
 });
