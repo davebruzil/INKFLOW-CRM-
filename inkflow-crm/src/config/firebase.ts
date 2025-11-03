@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getMessaging, isSupported } from 'firebase/messaging';
+import { getMessaging, isSupported, type Messaging } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -37,20 +37,24 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // Initialize Firebase Cloud Messaging (only if supported)
-let messaging = null;
-try {
-  if (typeof window !== 'undefined') {
-    isSupported().then((supported) => {
-      if (supported) {
+let messaging: Messaging | null = null;
+
+// Initialize messaging asynchronously
+if (typeof window !== 'undefined') {
+  isSupported().then((supported) => {
+    if (supported) {
+      try {
         messaging = getMessaging(app);
         console.log('✅ Firebase Cloud Messaging initialized');
-      } else {
-        console.warn('⚠️ Firebase Cloud Messaging is not supported in this browser');
+      } catch (error) {
+        console.warn('⚠️ Firebase Cloud Messaging initialization failed:', error);
       }
-    });
-  }
-} catch (error) {
-  console.warn('⚠️ Firebase Cloud Messaging initialization failed:', error);
+    } else {
+      console.warn('⚠️ Firebase Cloud Messaging is not supported in this browser');
+    }
+  }).catch((error) => {
+    console.warn('⚠️ Failed to check FCM support:', error);
+  });
 }
 
 export { messaging };

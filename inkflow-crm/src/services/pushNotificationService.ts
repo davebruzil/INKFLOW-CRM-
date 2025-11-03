@@ -1,4 +1,4 @@
-import { getToken, onMessage, Messaging } from 'firebase/messaging';
+import { getToken, onMessage, type Messaging } from 'firebase/messaging';
 import { messaging } from '../config/firebase';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
