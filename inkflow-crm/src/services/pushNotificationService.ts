@@ -58,12 +58,10 @@ export class PushNotificationService {
   }
 
   /**
-   * Get FCM token with VAPID key
+   * Get FCM token with VAPID key and service worker
    */
   private static async getMessagingToken(messagingInstance: Messaging): Promise<string | null> {
     try {
-      // You'll need to generate a VAPID key in Firebase Console
-      // Go to: Project Settings > Cloud Messaging > Web Push certificates
       const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
       console.log('🔑 VAPID Key loaded:', vapidKey ? `${vapidKey.substring(0, 20)}...` : 'MISSING');
@@ -79,8 +77,20 @@ export class PushNotificationService {
         return null;
       }
 
-      console.log('🔄 Requesting FCM token with VAPID key...');
-      const token = await getToken(messagingInstance, { vapidKey });
+      // Register service worker first
+      console.log('📝 Registering service worker...');
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      console.log('✅ Service worker registered:', registration.scope);
+
+      // Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+      console.log('✅ Service worker ready');
+
+      console.log('🔄 Requesting FCM token with VAPID key and service worker...');
+      const token = await getToken(messagingInstance, {
+        vapidKey,
+        serviceWorkerRegistration: registration
+      });
       console.log('✅ FCM token received:', token ? `${token.substring(0, 20)}...` : 'NULL');
       return token;
     } catch (error) {
