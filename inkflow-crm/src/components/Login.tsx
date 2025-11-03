@@ -41,8 +41,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         {error && <div className="error-message">{error}</div>}
 
-        <button 
-          onClick={handleGoogleLogin} 
+        <button
+          onClick={handleGoogleLogin}
           className="google-btn"
           disabled={loading}
         >
@@ -54,7 +54,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </svg>
           {loading ? 'Signing in...' : 'Sign in with Google'}
         </button>
-        
+
         <div className="footer-text">
           <p>Secure sign-in for tattoo artists</p>
         </div>

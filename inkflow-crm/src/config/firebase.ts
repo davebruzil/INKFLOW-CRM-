@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getMessaging, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,7 +15,7 @@ const firebaseConfig = {
 // Validate Firebase configuration
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
-  'VITE_FIREBASE_AUTH_DOMAIN', 
+  'VITE_FIREBASE_AUTH_DOMAIN',
   'VITE_FIREBASE_PROJECT_ID',
   'VITE_FIREBASE_STORAGE_BUCKET',
   'VITE_FIREBASE_MESSAGING_SENDER_ID',
@@ -34,4 +35,23 @@ console.log('✅ Firebase configuration loaded successfully');
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Initialize Firebase Cloud Messaging (only if supported)
+let messaging = null;
+try {
+  if (typeof window !== 'undefined') {
+    isSupported().then((supported) => {
+      if (supported) {
+        messaging = getMessaging(app);
+        console.log('✅ Firebase Cloud Messaging initialized');
+      } else {
+        console.warn('⚠️ Firebase Cloud Messaging is not supported in this browser');
+      }
+    });
+  }
+} catch (error) {
+  console.warn('⚠️ Firebase Cloud Messaging initialization failed:', error);
+}
+
+export { messaging };
 export default app;
