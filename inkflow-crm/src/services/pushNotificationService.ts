@@ -66,6 +66,8 @@ export class PushNotificationService {
       // Go to: Project Settings > Cloud Messaging > Web Push certificates
       const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
+      console.log('🔑 VAPID Key loaded:', vapidKey ? `${vapidKey.substring(0, 20)}...` : 'MISSING');
+
       if (!vapidKey) {
         console.error('❌ VITE_FIREBASE_VAPID_KEY not set in environment variables');
         console.log('📝 To get your VAPID key:');
@@ -73,10 +75,13 @@ export class PushNotificationService {
         console.log('   2. Navigate to Cloud Messaging tab');
         console.log('   3. Under "Web Push certificates", generate a new key pair');
         console.log('   4. Add the key to your .env file as VITE_FIREBASE_VAPID_KEY');
+        console.log('   5. RESTART your dev server after adding it!');
         return null;
       }
 
+      console.log('🔄 Requesting FCM token with VAPID key...');
       const token = await getToken(messagingInstance, { vapidKey });
+      console.log('✅ FCM token received:', token ? `${token.substring(0, 20)}...` : 'NULL');
       return token;
     } catch (error) {
       console.error('❌ Error getting FCM token:', error);
